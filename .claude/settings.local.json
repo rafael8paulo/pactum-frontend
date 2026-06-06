@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec new *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "PowerShell(New-Item *)",
+      "Bash(npx shadcn@latest add select input label form --yes)",
+      "Bash(npm run *)",
+      "Bash(not exist *)",
+      "Bash(openspec list *)",
+      "Bash(node *)",
+      "Bash(New-Item -ItemType Directory -Force \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\openspec\\\\changes\\\\sprint-3-receitas\\\\specs\\\\receitas-crud\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"ok\")",
+      "Bash(npx shadcn@latest *)",
+      "Bash(Remove-Item -Recurse -Force \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\.next\" -ErrorAction SilentlyContinue)",
+      "Bash(Write-Host \"Done\")",
+      "Bash(npm install *)"
+    ]
+  }
+}
