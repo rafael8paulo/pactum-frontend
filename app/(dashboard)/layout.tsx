@@ -8,6 +8,7 @@ import {
   SheetContent,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { ProtectedRoute } from '@/components/ui/protected-route';
 
 export default function DashboardLayout({
   children,
@@ -17,25 +18,27 @@ export default function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar desktop */}
-      <div className="hidden md:flex md:shrink-0">
-        <Sidebar />
-      </div>
-
-      {/* Sidebar mobile via Sheet */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-56 p-0">
-          <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
+    <ProtectedRoute>
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar desktop */}
+        <div className="hidden md:flex md:shrink-0">
           <Sidebar />
-        </SheetContent>
-      </Sheet>
+        </div>
 
-      {/* Main area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-background">{children}</main>
+        {/* Sidebar mobile via Sheet */}
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="w-56 p-0">
+            <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
+            <Sidebar />
+          </SheetContent>
+        </Sheet>
+
+        {/* Main area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header onMenuClick={() => setMobileOpen(true)} />
+          <main className="flex-1 overflow-y-auto bg-background">{children}</main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

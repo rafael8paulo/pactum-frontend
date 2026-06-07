@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { patrimonioApi } from '@/lib/api/patrimonio';
+import { getErrorMessage } from '@/lib/api/error';
 import type { CadastrarPatrimonioRequest, ListaPatrimonioResponse } from '@/types/patrimonio';
 
 export function usePatrimonio(competencia: string) {
@@ -18,8 +19,8 @@ export function useCadastrarPatrimonio() {
       queryClient.invalidateQueries({ queryKey: ['patrimonio'] });
       toast.success('Item de patrimônio cadastrado com sucesso.');
     },
-    onError: () => {
-      toast.error('Erro ao cadastrar item. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -32,8 +33,8 @@ export function useRemoverPatrimonio() {
       queryClient.invalidateQueries({ queryKey: ['patrimonio'] });
       toast.success('Item removido.');
     },
-    onError: () => {
-      toast.error('Erro ao remover item.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }

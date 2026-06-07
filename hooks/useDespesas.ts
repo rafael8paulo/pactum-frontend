@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { despesaApi } from '@/lib/api/despesas';
+import { getErrorMessage } from '@/lib/api/error';
 import type {
   CadastrarDespesaRequest,
   DespesaFilters,
@@ -23,8 +24,8 @@ export function useCadastrarDespesa() {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       toast.success('Despesa cadastrada com sucesso.');
     },
-    onError: () => {
-      toast.error('Erro ao cadastrar despesa. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -38,8 +39,8 @@ export function useAtualizarDespesa() {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       toast.success('Despesa atualizada com sucesso.');
     },
-    onError: () => {
-      toast.error('Erro ao atualizar despesa. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -53,8 +54,8 @@ export function useAtualizarStatusDespesa() {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       toast.success('Status atualizado.');
     },
-    onError: () => {
-      toast.error('Erro ao atualizar status. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -67,8 +68,8 @@ export function useRemoverDespesa() {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       toast.success('Despesa removida.');
     },
-    onError: () => {
-      toast.error('Erro ao remover despesa.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }

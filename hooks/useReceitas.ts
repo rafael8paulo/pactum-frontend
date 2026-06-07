@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { receitaApi } from '@/lib/api/receitas';
+import { getErrorMessage } from '@/lib/api/error';
 import type { CadastrarReceitaRequest, ListaReceitasResponse } from '@/types/receita';
 
 export function useReceitas(competencia: string) {
@@ -18,8 +19,8 @@ export function useCadastrarReceita() {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       toast.success('Receita cadastrada com sucesso.');
     },
-    onError: () => {
-      toast.error('Erro ao cadastrar receita. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -33,8 +34,8 @@ export function useAtualizarReceita() {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       toast.success('Receita atualizada com sucesso.');
     },
-    onError: () => {
-      toast.error('Erro ao atualizar receita. Tente novamente.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }
@@ -47,8 +48,8 @@ export function useRemoverReceita() {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       toast.success('Receita removida.');
     },
-    onError: () => {
-      toast.error('Erro ao remover receita.');
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
     },
   });
 }

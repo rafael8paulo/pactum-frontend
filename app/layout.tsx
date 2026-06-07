@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import './globals.css';
@@ -32,11 +33,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <QueryProvider>
-            <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
-            {children}
-            <Toaster richColors position="top-right" />
-          </QueryProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
+              {children}
+              <Toaster richColors position="top-right" />
+            </QueryProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

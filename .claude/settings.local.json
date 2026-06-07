@@ -16,7 +16,18 @@
       "Bash(npx shadcn@latest *)",
       "Bash(Remove-Item -Recurse -Force \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\.next\" -ErrorAction SilentlyContinue)",
       "Bash(Write-Host \"Done\")",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(findstr /i \"react-hook-form\\\\|zod\\\\|hookform\\\\|js-cookie\")",
+      "Bash(Select-String *)",
+      "Bash(npx tsc *)",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\openspec\\\\changes\\\\archive\")",
+      "Bash(Move-Item -Path \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\openspec\\\\changes\\\\add-authentication\" -Destination \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\openspec\\\\changes\\\\archive\\\\2026-06-07-add-authentication\")",
+      "Bash(Write-Output \"Done\")",
+      "Bash(Get-ChildItem \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\app\\\\\\(auth\\)\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Get-ChildItem \"D:\\\\rafael\\\\pactum\\\\pactum-frontend\\\\components\\\\features\\\\auth\" -Recurse -File)"
     ]
   }
 }
