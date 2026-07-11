@@ -70,7 +70,7 @@ export function LoginForm() {
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Não tem conta?{' '}
+        * Não tem conta?{' '}
         <Link href="/cadastro" className="font-medium text-foreground hover:underline">
           Cadastre-se
         </Link>
