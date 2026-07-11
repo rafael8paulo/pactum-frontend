@@ -61,5 +61,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
+            cd ~/pactum
             docker compose pull pactum-frontend
             docker compose up -d --wait pactum-frontend
