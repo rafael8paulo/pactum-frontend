@@ -19,9 +19,9 @@ O sistema SHALL ter uma tela pública em `app/(auth)/login/page.tsx` com um form
 - **WHEN** o usuário submete o formulário com dados válidos
 - **THEN** o botão exibe um `<Spinner size="sm" />` e fica desabilitado enquanto a requisição está em andamento
 
-#### Scenario: Credenciais inválidas exibem erro inline abaixo do formulário
+#### Scenario: Credenciais inválidas exibem erro inline e toast
 - **WHEN** a API retorna erro de credenciais inválidas
-- **THEN** uma mensagem de erro é exibida inline abaixo do formulário (não como toast) e o botão volta ao estado normal
+- **THEN** uma mensagem de erro é exibida inline abaixo do formulário **e** um toast de erro é exibido; o botão volta ao estado normal
 
 #### Scenario: Login bem-sucedido redireciona para /resumo
 - **WHEN** a API retorna sucesso com os dados do usuário

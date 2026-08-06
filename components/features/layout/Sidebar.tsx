@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, CreditCard, TrendingUp, Wallet } from 'lucide-react';
+import { BarChart3, CreditCard, Repeat, TrendingUp, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/despesas', label: 'Despesas', icon: CreditCard },
   { href: '/receitas', label: 'Receitas', icon: TrendingUp },
   { href: '/patrimonio', label: 'Patrimônio', icon: Wallet },
+  { href: '/contas-recorrentes', label: 'Contas Recorrentes', icon: Repeat },
 ];
 
 export function Sidebar() {

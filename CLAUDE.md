@@ -161,7 +161,41 @@ Acesse `http://localhost:3000`.
 
 ---
 
-## 7. Comandos Úteis
+## 7. Build e Deploy com Docker
+
+A aplicação roda em produção via imagem Docker multi-stage (`deps` → `build` → `runner`, base `node:20-alpine`), usando `output: 'standalone'` do Next.js.
+
+**Importante**: `NEXT_PUBLIC_API_URL` é embutida no bundle JavaScript **no momento do build**, não é lida em runtime. Por isso ela deve ser passada como `--build-arg` do Docker — definir apenas uma env var no `docker run` não tem efeito sobre o código client-side já compilado.
+
+```bash
+# Build da imagem, apontando para a API correta do ambiente de destino
+docker build --build-arg NEXT_PUBLIC_API_URL=https://api.pactum.exemplo.com -t pactum-web .
+
+# Rodar o container
+docker run -p 3000:3000 pactum-web
+```
+
+Acesse `http://localhost:3000`. Para apontar para outra API, é necessário **rebuildar a imagem** com um novo `--build-arg`, não apenas trocar a env var do container.
+
+### Deploy automático via GitHub Actions
+
+Todo push em `main` dispara `.github/workflows/deploy.yml`: `npm ci` + `npm run lint` (gate) → build/push da imagem no GHCR (`latest` e `${{ github.sha }}`) → deploy via SSH na VPS rodando `docker compose pull pactum-frontend && docker compose up -d --wait pactum-frontend`.
+
+Configuração necessária no repositório GitHub (Settings → Secrets and variables → Actions):
+
+| Nome | Tipo | Descrição |
+|---|---|---|
+| `SSH_PRIVATE_KEY` | Secret | Chave privada SSH para acesso à VPS |
+| `VPS_HOST` | Secret | Host/IP da VPS |
+| `VPS_USER` | Secret | Usuário SSH da VPS |
+| `VPS_SSH_PORT` | Secret | Porta SSH da VPS |
+| `NEXT_PUBLIC_API_URL` | Variable | URL pública da API — build-arg do Docker (não é secret, pois já fica embutida no bundle client) |
+
+Assume-se que a VPS já possui um `docker-compose.yml` próprio com um serviço `pactum-frontend` apontando para a imagem do GHCR.
+
+---
+
+## 8. Comandos Úteis
 
 ```bash
 npm run dev           # Inicia em desenvolvimento
@@ -173,7 +207,7 @@ npx shadcn@latest add [componente]   # Adicionar componente shadcn
 
 ---
 
-## 8. Padrões que NÃO Devem Ser Usados
+## 9. Padrões que NÃO Devem Ser Usados
 
 - `fetch` direto — usar Axios via `lib/api/client.ts`
 - `useState` para dados que vêm da API — usar TanStack Query
@@ -184,7 +218,7 @@ npx shadcn@latest add [componente]   # Adicionar componente shadcn
 
 ---
 
-## 9. Exemplo de Implementação Completa
+## 10. Exemplo de Implementação Completa
 
 Padrão end-to-end para a feature de **Despesas**.
 
