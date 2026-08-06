@@ -16,6 +16,7 @@ export interface Despesa {
   status: StatusDespesa;
   competencia: string;
   categoria: CategoriaDespesa;
+  contaRecorrenteId?: string | null;
 }
 
 export interface CadastrarDespesaRequest {
