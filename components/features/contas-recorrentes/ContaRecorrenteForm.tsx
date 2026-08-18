@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Select,
   SelectContent,
@@ -135,13 +136,12 @@ export function ContaRecorrenteForm({
             <FormItem>
               <FormLabel>Valor padrão (R$)</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0,00"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                <CurrencyInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  disabled={field.disabled}
                 />
               </FormControl>
               <FormMessage />
