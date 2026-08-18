@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useReceitas, useRemoverReceita } from '@/hooks/useReceitas';
+import { useSortableData } from '@/hooks/useSortableData';
+import type { Receita } from '@/types/receita';
 import {
   Table,
   TableBody,
@@ -10,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SortableTableHead } from '@/components/features/shared/SortableTableHead';
 import { PageLoader } from '@/components/ui/page-loader';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -41,6 +44,7 @@ interface ReceitaTableProps {
 export function ReceitaTable({ competencia }: ReceitaTableProps) {
   const { data, isLoading } = useReceitas(competencia);
   const remover = useRemoverReceita();
+  const { sortedData, sortConfig, requestSort } = useSortableData<Receita>(data?.receitas ?? []);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
@@ -66,14 +70,30 @@ export function ReceitaTable({ competencia }: ReceitaTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Descrição</TableHead>
-          <TableHead>Categoria</TableHead>
-          <TableHead className="text-right">Valor</TableHead>
+          <SortableTableHead<Receita>
+            label="Descrição"
+            sortKey="descricao"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+          />
+          <SortableTableHead<Receita>
+            label="Categoria"
+            sortKey="categoria"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+          />
+          <SortableTableHead<Receita>
+            label="Valor"
+            sortKey="valor"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+            className="text-right"
+          />
           <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.receitas.map((receita) => (
+        {sortedData.map((receita) => (
           <TableRow key={receita.id}>
             <TableCell className="font-medium">{receita.descricao}</TableCell>
             <TableCell className="text-muted-foreground">

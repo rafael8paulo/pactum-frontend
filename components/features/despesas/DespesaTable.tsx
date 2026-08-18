@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useDespesas, useAtualizarStatusDespesa, useRemoverDespesa } from '@/hooks/useDespesas';
-import type { DespesaFilters, StatusDespesa } from '@/types/despesa';
+import { useSortableData } from '@/hooks/useSortableData';
+import type { Despesa, DespesaFilters, StatusDespesa } from '@/types/despesa';
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SortableTableHead } from '@/components/features/shared/SortableTableHead';
 import { PageLoader } from '@/components/ui/page-loader';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -59,6 +61,10 @@ export function DespesaTable({ competencia, filters }: DespesaTableProps) {
   const { data, isLoading } = useDespesas(competencia, filters);
   const atualizarStatus = useAtualizarStatusDespesa();
   const remover = useRemoverDespesa();
+  const { sortedData, sortConfig, requestSort } = useSortableData<Despesa>(
+    data?.despesas ?? [],
+    { key: 'valor', direction: 'desc' }
+  );
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [statusLoadingId, setStatusLoadingId] = useState<string | null>(null);
 
@@ -94,15 +100,31 @@ export function DespesaTable({ competencia, filters }: DespesaTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Descrição</TableHead>
-          <TableHead>Categoria</TableHead>
-          <TableHead className="text-right">Valor</TableHead>
+          <SortableTableHead<Despesa>
+            label="Descrição"
+            sortKey="descricao"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+          />
+          <SortableTableHead<Despesa>
+            label="Categoria"
+            sortKey="categoria"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+          />
+          <SortableTableHead<Despesa>
+            label="Valor"
+            sortKey="valor"
+            sortConfig={sortConfig}
+            onSort={requestSort}
+            className="text-right"
+          />
           <TableHead>Status</TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.despesas.map((despesa) => (
+        {sortedData.map((despesa) => (
           <TableRow key={despesa.id}>
             <TableCell className="font-medium">{despesa.descricao}</TableCell>
             <TableCell className="capitalize text-muted-foreground">
