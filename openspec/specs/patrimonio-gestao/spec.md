@@ -39,7 +39,7 @@ O sistema SHALL exibir um card destacado com a soma dos valores de todos os iten
 - **THEN** o card `PatrimonioTotal` exibe um `Skeleton` no lugar do valor
 
 ### Requirement: Cadastrar novo item de patrimônio
-O sistema SHALL permitir cadastrar um novo item de patrimônio via dialog com formulário validado, chamando `POST /api/v1/patrimonio`.
+O sistema SHALL permitir cadastrar um novo item de patrimônio via dialog com formulário validado, chamando `POST /api/v1/patrimonio`. O campo Valor SHALL usar um input com máscara de moeda BRL (`R$ 0,00`).
 
 #### Scenario: Dialog de novo item abre
 - **WHEN** o usuário clica no botão "Novo Item"
@@ -56,6 +56,10 @@ O sistema SHALL permitir cadastrar um novo item de patrimônio via dialog com fo
 #### Scenario: Erro no cadastro exibe toast
 - **WHEN** a API retorna erro ao cadastrar
 - **THEN** o dialog permanece aberto e um toast de erro é exibido
+
+#### Scenario: Campo Valor formata em tempo real durante a digitação
+- **WHEN** o usuário digita dígitos no campo Valor do formulário de novo item de patrimônio
+- **THEN** o campo exibe o valor formatado como moeda brasileira (ex.: `R$ 123,45`) conforme o usuário digita
 
 ### Requirement: Remover item de patrimônio com confirmação
 O sistema SHALL permitir remover um item de patrimônio com confirmação prévia via AlertDialog, chamando `DELETE /api/v1/patrimonio/:id`.

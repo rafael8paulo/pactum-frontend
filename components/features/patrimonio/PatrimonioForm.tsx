@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -64,13 +65,12 @@ export function PatrimonioForm({ defaultValues, onSubmit, isPending }: Patrimoni
             <FormItem>
               <FormLabel>Valor (R$)</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0,00"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                <CurrencyInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  disabled={field.disabled}
                 />
               </FormControl>
               <FormMessage />

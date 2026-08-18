@@ -32,7 +32,7 @@ O sistema SHALL exibir todas as receitas da competência selecionada no MonthPic
 - **THEN** a ordenação da tabela não muda
 
 ### Requirement: Cadastrar nova receita
-O sistema SHALL permitir cadastrar uma nova receita via dialog com formulário validado, chamando `POST /api/v1/receitas`.
+O sistema SHALL permitir cadastrar uma nova receita via dialog com formulário validado, chamando `POST /api/v1/receitas`. O campo Valor SHALL usar um input com máscara de moeda BRL (`R$ 0,00`).
 
 #### Scenario: Dialog de nova receita abre
 - **WHEN** o usuário clica no botão "Nova Receita"
@@ -50,12 +50,16 @@ O sistema SHALL permitir cadastrar uma nova receita via dialog com formulário v
 - **WHEN** a API retorna erro ao cadastrar
 - **THEN** o dialog permanece aberto e um toast de erro é exibido
 
+#### Scenario: Campo Valor formata em tempo real durante a digitação
+- **WHEN** o usuário digita dígitos no campo Valor do formulário de nova receita
+- **THEN** o campo exibe o valor formatado como moeda brasileira (ex.: `R$ 123,45`) conforme o usuário digita
+
 ### Requirement: Editar receita existente
-O sistema SHALL permitir editar uma receita existente via dialog com formulário pré-preenchido, chamando `PUT /api/v1/receitas/:id`.
+O sistema SHALL permitir editar uma receita existente via dialog com formulário pré-preenchido, chamando `PUT /api/v1/receitas/:id`. O campo Valor SHALL usar um input com máscara de moeda BRL, já exibindo o valor atual formatado ao abrir o dialog.
 
 #### Scenario: Dialog de edição abre com dados pré-preenchidos
 - **WHEN** o usuário clica em "Editar" em uma linha da tabela
-- **THEN** um Dialog se abre com o formulário preenchido com os dados atuais da receita
+- **THEN** um Dialog se abre com o formulário preenchido com os dados atuais da receita, e o campo Valor já exibe o valor formatado como moeda (ex.: `R$ 1.234,56`)
 
 #### Scenario: Edição bem-sucedida
 - **WHEN** o usuário altera campos e confirma
