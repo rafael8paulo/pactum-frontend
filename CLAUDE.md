@@ -179,19 +179,12 @@ Acesse `http://localhost:3000`. Para apontar para outra API, é necessário **re
 
 ### Deploy automático via GitHub Actions
 
-Todo push em `main` dispara `.github/workflows/deploy.yml`: `npm ci` + `npm run lint` (gate) → build/push da imagem no GHCR (`latest` e `${{ github.sha }}`) → deploy via SSH na VPS rodando `docker compose pull pactum-frontend && docker compose up -d --wait pactum-frontend`.
+Todo push em `master` dispara `.github/workflows/deploy.yml`, em 2 jobs (`needs`):
 
-Configuração necessária no repositório GitHub (Settings → Secrets and variables → Actions):
+1. **build-and-push** — `npm ci` + `npm run lint` (gate) → build/push da imagem no GHCR (`ghcr.io/rafael8paulo/pactum-frontend`, tags `latest` e `${{ github.sha }}`). `NEXT_PUBLIC_API_URL` entra como `build-arg` (repository *variable*), pois fica embutida no bundle client no momento do build.
+2. **deploy** — dispara o deploy da aplicação no **Dokploy** (via API) e aguarda o deployment concluir; se o Dokploy reportar erro, o job falha.
 
-| Nome | Tipo | Descrição |
-|---|---|---|
-| `SSH_PRIVATE_KEY` | Secret | Chave privada SSH para acesso à VPS |
-| `VPS_HOST` | Secret | Host/IP da VPS |
-| `VPS_USER` | Secret | Usuário SSH da VPS |
-| `VPS_SSH_PORT` | Secret | Porta SSH da VPS |
-| `NEXT_PUBLIC_API_URL` | Variable | URL pública da API — build-arg do Docker (não é secret, pois já fica embutida no bundle client) |
-
-Assume-se que a VPS já possui um `docker-compose.yml` próprio com um serviço `pactum-frontend` apontando para a imagem do GHCR.
+O Dokploy é o plano de controle de deploy na VPS: puxa a imagem nova do GHCR, recria o container e mantém histórico e rollback pela UI. Não há mais SSH nem `docker compose` manual no pipeline.
 
 ---
 
