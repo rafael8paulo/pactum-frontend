@@ -22,6 +22,7 @@ export function useCadastrarDespesa() {
     mutationFn: (data: CadastrarDespesaRequest) => despesaApi.cadastrar(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Despesa cadastrada com sucesso.');
     },
     onError: (error) => {
@@ -37,6 +38,7 @@ export function useAtualizarDespesa() {
       despesaApi.atualizar(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Despesa atualizada com sucesso.');
     },
     onError: (error) => {
@@ -52,6 +54,7 @@ export function useAtualizarStatusDespesa() {
       despesaApi.atualizarStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Status atualizado.');
     },
     onError: (error) => {
@@ -66,6 +69,7 @@ export function useRemoverDespesa() {
     mutationFn: (id: string) => despesaApi.remover(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Despesa removida.');
     },
     onError: (error) => {

@@ -9,6 +9,11 @@ import type {
   ListaContasRecorrentesResponse,
   StatusContaRecorrente,
 } from '@/types/conta-recorrente';
+import type {
+  ResumoAssinaturas,
+  ListaProximasCobrancasResponse,
+  ListaHistoricoValorResponse,
+} from '@/types/resumo-assinaturas';
 
 export function useContasRecorrentes(filters?: ContaRecorrenteFilters) {
   return useQuery<ListaContasRecorrentesResponse>({
@@ -31,14 +36,24 @@ export function useCadastrarContaRecorrente() {
   });
 }
 
+interface AtualizarContaRecorrenteVariables {
+  id: string;
+  data: EditarContaRecorrenteRequest;
+  valorMudou: boolean;
+}
+
 export function useAtualizarContaRecorrente() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: EditarContaRecorrenteRequest }) =>
+    mutationFn: ({ id, data }: AtualizarContaRecorrenteVariables) =>
       contaRecorrenteApi.atualizar(id, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['contas-recorrentes'] });
-      toast.success('Conta recorrente atualizada com sucesso.');
+      toast.success(
+        variables.valorMudou
+          ? 'Conta recorrente atualizada. O valor anterior foi preservado no histórico.'
+          : 'Conta recorrente atualizada com sucesso.'
+      );
     },
     onError: (error) => {
       toast.error(getErrorMessage(error));
@@ -99,5 +114,27 @@ export function useGerarLoteLancamentosRecorrentes() {
     onError: (error) => {
       toast.error(getErrorMessage(error));
     },
+  });
+}
+
+export function useResumoAssinaturas() {
+  return useQuery<ResumoAssinaturas>({
+    queryKey: ['contas-recorrentes', 'resumo'],
+    queryFn: () => contaRecorrenteApi.consultarResumo(),
+  });
+}
+
+export function useProximasCobrancas(dias?: number) {
+  return useQuery<ListaProximasCobrancasResponse>({
+    queryKey: ['contas-recorrentes', 'proximas-cobrancas', dias],
+    queryFn: () => contaRecorrenteApi.consultarProximasCobrancas(dias),
+  });
+}
+
+export function useHistoricoValores(id: string, enabled = true) {
+  return useQuery<ListaHistoricoValorResponse>({
+    queryKey: ['contas-recorrentes', id, 'historico-valores'],
+    queryFn: () => contaRecorrenteApi.consultarHistoricoValores(id),
+    enabled,
   });
 }

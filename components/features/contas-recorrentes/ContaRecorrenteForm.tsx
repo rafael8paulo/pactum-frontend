@@ -22,9 +22,12 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { useFormasPagamento } from '@/hooks/useFormasPagamento';
 import type { CategoriaDespesa } from '@/types/despesa';
+import type { FrequenciaCobranca } from '@/types/conta-recorrente';
 
 const COMPETENCIA_REGEX = /^\d{4}-\d{2}$/;
+const NENHUMA_FORMA_PAGAMENTO = 'nenhuma';
 
 const contaRecorrenteSchema = z
   .object({
@@ -47,25 +50,39 @@ const contaRecorrenteSchema = z
       .optional(),
     competenciaInicio: z.string().regex(COMPETENCIA_REGEX, 'Formato: AAAA-MM'),
     competenciaFim: z.string().optional(),
+    frequencia: z.enum(['SEMANAL', 'MENSAL', 'TRIMESTRAL', 'ANUAL'] as [
+      FrequenciaCobranca,
+      ...FrequenciaCobranca[],
+    ]),
+    dataBaseCobranca: z.string().min(1, 'Data da primeira cobrança é obrigatória'),
+    formaPagamentoId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (!data.competenciaFim) return;
-
-    if (!COMPETENCIA_REGEX.test(data.competenciaFim)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Formato: AAAA-MM',
-        path: ['competenciaFim'],
-      });
-      return;
+    if (data.competenciaFim) {
+      if (!COMPETENCIA_REGEX.test(data.competenciaFim)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Formato: AAAA-MM',
+          path: ['competenciaFim'],
+        });
+      } else if (data.competenciaFim < data.competenciaInicio) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Competência fim deve ser igual ou posterior à competência início',
+          path: ['competenciaFim'],
+        });
+      }
     }
 
-    if (data.competenciaFim < data.competenciaInicio) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Competência fim deve ser igual ou posterior à competência início',
-        path: ['competenciaFim'],
-      });
+    if (data.dataBaseCobranca && COMPETENCIA_REGEX.test(data.competenciaInicio)) {
+      const mesDataBase = data.dataBaseCobranca.slice(0, 7);
+      if (mesDataBase !== data.competenciaInicio) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Data da primeira cobrança deve estar dentro do mês da competência início',
+          path: ['dataBaseCobranca'],
+        });
+      }
     }
   });
 
@@ -81,6 +98,13 @@ const CATEGORIAS: { value: CategoriaDespesa; label: string }[] = [
   { value: 'OUTROS', label: 'Outros' },
 ];
 
+const FREQUENCIAS: { value: FrequenciaCobranca; label: string }[] = [
+  { value: 'SEMANAL', label: 'Semanal' },
+  { value: 'MENSAL', label: 'Mensal' },
+  { value: 'TRIMESTRAL', label: 'Trimestral' },
+  { value: 'ANUAL', label: 'Anual' },
+];
+
 interface ContaRecorrenteFormProps {
   defaultValues?: Partial<ContaRecorrenteFormValues>;
   onSubmit: (values: ContaRecorrenteFormValues) => void;
@@ -92,6 +116,8 @@ export function ContaRecorrenteForm({
   onSubmit,
   isPending,
 }: ContaRecorrenteFormProps) {
+  const { data: formasPagamento } = useFormasPagamento();
+
   const form = useForm<ContaRecorrenteFormValues>({
     resolver: zodResolver(contaRecorrenteSchema),
     defaultValues: {
@@ -101,6 +127,9 @@ export function ContaRecorrenteForm({
       diaVencimento: undefined,
       competenciaInicio: '',
       competenciaFim: undefined,
+      frequencia: 'MENSAL',
+      dataBaseCobranca: '',
+      formaPagamentoId: undefined,
       ...defaultValues,
     },
   });
@@ -109,6 +138,10 @@ export function ContaRecorrenteForm({
     onSubmit({
       ...values,
       competenciaFim: values.competenciaFim || undefined,
+      formaPagamentoId:
+        !values.formaPagamentoId || values.formaPagamentoId === NENHUMA_FORMA_PAGAMENTO
+          ? undefined
+          : values.formaPagamentoId,
     });
   }
 
@@ -176,6 +209,60 @@ export function ContaRecorrenteForm({
 
         <FormField
           control={form.control}
+          name="frequencia"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Frequência de cobrança</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a frequência" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {FREQUENCIAS.map((f) => (
+                    <SelectItem key={f.value} value={f.value}>
+                      {f.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="formaPagamentoId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Forma de pagamento (opcional)</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value ?? NENHUMA_FORMA_PAGAMENTO}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma forma de pagamento" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={NENHUMA_FORMA_PAGAMENTO}>Nenhuma</SelectItem>
+                  {formasPagamento?.formasPagamento.map((forma) => (
+                    <SelectItem key={forma.id} value={forma.id}>
+                      {forma.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="diaVencimento"
           render={({ field }) => (
             <FormItem>
@@ -224,6 +311,20 @@ export function ContaRecorrenteForm({
                   value={field.value ?? ''}
                   onChange={field.onChange}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dataBaseCobranca"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data da primeira cobrança</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

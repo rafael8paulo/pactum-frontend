@@ -3,6 +3,9 @@ import { NovaContaRecorrenteDialog } from '@/components/features/contas-recorren
 import { ContaRecorrenteFilters } from '@/components/features/contas-recorrentes/ContaRecorrenteFilters';
 import { GerarLancamentosButton } from '@/components/features/contas-recorrentes/GerarLancamentosButton';
 import { ContaRecorrenteTable } from '@/components/features/contas-recorrentes/ContaRecorrenteTable';
+import { ResumoAssinaturasCards } from '@/components/features/contas-recorrentes/ResumoAssinaturasCards';
+import { AssinaturasPorFormaPagamentoList } from '@/components/features/contas-recorrentes/AssinaturasPorFormaPagamentoList';
+import { ProximasCobrancasBanner } from '@/components/features/contas-recorrentes/ProximasCobrancasBanner';
 import type {
   ContaRecorrenteFilters as FiltersType,
   StatusContaRecorrente,
@@ -28,6 +31,11 @@ export default async function ContasRecorrentesPage({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Contas Recorrentes</h1>
         <NovaContaRecorrenteDialog />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <ResumoAssinaturasCards />
+        <AssinaturasPorFormaPagamentoList />
+        <ProximasCobrancasBanner />
       </div>
       <div className="flex items-center justify-between">
         <Suspense>

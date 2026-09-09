@@ -25,8 +25,9 @@ export function EditarContaRecorrenteDialog({
   const atualizar = useAtualizarContaRecorrente();
 
   function handleSubmit(values: ContaRecorrenteFormValues) {
+    const valorMudou = values.valorPadrao !== contaRecorrente.valorPadrao;
     atualizar.mutate(
-      { id: contaRecorrente.id, data: values },
+      { id: contaRecorrente.id, data: values, valorMudou },
       { onSuccess: () => setOpen(false) }
     );
   }
@@ -50,6 +51,9 @@ export function EditarContaRecorrenteDialog({
             diaVencimento: contaRecorrente.diaVencimento ?? undefined,
             competenciaInicio: contaRecorrente.competenciaInicio,
             competenciaFim: contaRecorrente.competenciaFim ?? undefined,
+            frequencia: contaRecorrente.frequencia,
+            dataBaseCobranca: contaRecorrente.dataBaseCobranca,
+            formaPagamentoId: contaRecorrente.formaPagamentoId ?? undefined,
           }}
           onSubmit={handleSubmit}
           isPending={atualizar.isPending}

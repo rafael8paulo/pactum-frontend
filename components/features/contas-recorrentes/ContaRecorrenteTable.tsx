@@ -8,9 +8,11 @@ import {
   useRemoverContaRecorrente,
   useGerarLoteLancamentosRecorrentes,
 } from '@/hooks/useContasRecorrentes';
+import { useFormasPagamento } from '@/hooks/useFormasPagamento';
 import type {
   ContaRecorrente,
   ContaRecorrenteFilters,
+  FrequenciaCobranca,
   StatusContaRecorrente,
 } from '@/types/conta-recorrente';
 import {
@@ -36,6 +38,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { EditarContaRecorrenteDialog } from './EditarContaRecorrenteDialog';
+import { HistoricoValorDialog } from './HistoricoValorDialog';
 import { TableSkeleton } from '@/components/features/layout/TableSkeleton';
 import { EmptyState } from '@/components/features/layout/EmptyState';
 import { formatCurrency, cn, getCurrentCompetencia } from '@/lib/utils';
@@ -51,6 +54,18 @@ const STATUS_LABELS: Record<StatusContaRecorrente, string> = {
   PAUSADA: 'Pausada',
   ENCERRADA: 'Encerrada',
 };
+
+const FREQUENCIA_LABELS: Record<FrequenciaCobranca, string> = {
+  SEMANAL: 'Semanal',
+  MENSAL: 'Mensal',
+  TRIMESTRAL: 'Trimestral',
+  ANUAL: 'Anual',
+};
+
+function formatData(data: string): string {
+  const [year, month, day] = data.split('-');
+  return `${day}/${month}/${year}`;
+}
 
 const MESES_ABREVIADOS = [
   'jan',
@@ -95,9 +110,17 @@ interface ContaRecorrenteTableProps {
 
 export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
   const { data, isLoading } = useContasRecorrentes(filters);
+  const { data: formasPagamento } = useFormasPagamento();
   const atualizarStatus = useAtualizarStatusContaRecorrente();
   const remover = useRemoverContaRecorrente();
   const gerarLote = useGerarLoteLancamentosRecorrentes();
+
+  const nomeFormaPagamento = (formaPagamentoId: string | null): string => {
+    if (!formaPagamentoId) return '—';
+    return (
+      formasPagamento?.formasPagamento.find((f) => f.id === formaPagamentoId)?.nome ?? '—'
+    );
+  };
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [statusLoadingId, setStatusLoadingId] = useState<string | null>(null);
   const [loteLoadingId, setLoteLoadingId] = useState<string | null>(null);
@@ -151,6 +174,9 @@ export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
           <TableHead>Descrição</TableHead>
           <TableHead>Categoria</TableHead>
           <TableHead className="text-right">Valor padrão</TableHead>
+          <TableHead>Frequência</TableHead>
+          <TableHead>Forma de pagamento</TableHead>
+          <TableHead>Próxima cobrança</TableHead>
           <TableHead>Dia de vencimento</TableHead>
           <TableHead>Vigência</TableHead>
           <TableHead>Status</TableHead>
@@ -165,6 +191,13 @@ export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
               {conta.categoria.replace('_', ' ').toLowerCase()}
             </TableCell>
             <TableCell className="text-right">{formatCurrency(conta.valorPadrao)}</TableCell>
+            <TableCell>{FREQUENCIA_LABELS[conta.frequencia]}</TableCell>
+            <TableCell>{nomeFormaPagamento(conta.formaPagamentoId)}</TableCell>
+            <TableCell>
+              {conta.status === 'ATIVA' && conta.proximaCobranca
+                ? formatData(conta.proximaCobranca)
+                : '—'}
+            </TableCell>
             <TableCell>{conta.diaVencimento ?? '—'}</TableCell>
             <TableCell>{formatVigencia(conta.competenciaInicio, conta.competenciaFim)}</TableCell>
             <TableCell>
@@ -207,7 +240,7 @@ export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
                     )}
                   </>
                 )}
-                {conta.status === 'ATIVA' && (
+                {conta.status === 'ATIVA' && conta.frequencia !== 'SEMANAL' && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -221,6 +254,7 @@ export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
                     )}
                   </Button>
                 )}
+                <HistoricoValorDialog contaRecorrenteId={conta.id} descricao={conta.descricao} />
                 <EditarContaRecorrenteDialog contaRecorrente={conta} />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
