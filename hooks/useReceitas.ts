@@ -17,6 +17,7 @@ export function useCadastrarReceita() {
     mutationFn: (data: CadastrarReceitaRequest) => receitaApi.cadastrar(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Receita cadastrada com sucesso.');
     },
     onError: (error) => {
@@ -32,6 +33,7 @@ export function useAtualizarReceita() {
       receitaApi.atualizar(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Receita atualizada com sucesso.');
     },
     onError: (error) => {
@@ -46,6 +48,7 @@ export function useRemoverReceita() {
     mutationFn: (id: string) => receitaApi.remover(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
+      queryClient.invalidateQueries({ queryKey: ['resumo'] });
       toast.success('Receita removida.');
     },
     onError: (error) => {

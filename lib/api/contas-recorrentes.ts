@@ -7,6 +7,11 @@ import type {
   ContaRecorrenteFilters,
 } from '@/types/conta-recorrente';
 import type { ListaDespesasResponse } from '@/types/despesa';
+import type {
+  ResumoAssinaturas,
+  ListaProximasCobrancasResponse,
+  ListaHistoricoValorResponse,
+} from '@/types/resumo-assinaturas';
 
 export const contaRecorrenteApi = {
   listar: (filters?: ContaRecorrenteFilters) =>
@@ -39,5 +44,20 @@ export const contaRecorrenteApi = {
   gerarTodos: (id: string) =>
     api
       .post<ListaDespesasResponse>(`/api/v1/contas-recorrentes/${id}/gerar-todos`)
+      .then((r) => r.data),
+
+  consultarResumo: () =>
+    api.get<ResumoAssinaturas>('/api/v1/contas-recorrentes/resumo').then((r) => r.data),
+
+  consultarProximasCobrancas: (dias?: number) =>
+    api
+      .get<ListaProximasCobrancasResponse>('/api/v1/contas-recorrentes/proximas-cobrancas', {
+        params: dias !== undefined ? { dias } : undefined,
+      })
+      .then((r) => r.data),
+
+  consultarHistoricoValores: (id: string) =>
+    api
+      .get<ListaHistoricoValorResponse>(`/api/v1/contas-recorrentes/${id}/historico-valores`)
       .then((r) => r.data),
 };
