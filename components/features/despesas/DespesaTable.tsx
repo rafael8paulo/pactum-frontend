@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDespesas, useAtualizarStatusDespesa, useRemoverDespesa } from '@/hooks/useDespesas';
 import { useSortableData } from '@/hooks/useSortableData';
 import type { Despesa, DespesaFilters, StatusDespesa } from '@/types/despesa';
@@ -13,7 +13,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SortableTableHead } from '@/components/features/shared/SortableTableHead';
-import { PageLoader } from '@/components/ui/page-loader';
+import { DadosSalvosLabel } from '@/components/features/layout/DadosSalvosLabel';
+import { EmptyState } from '@/components/features/layout/EmptyState';
+import { ErrorState } from '@/components/features/layout/ErrorState';
+import { TableSkeleton } from '@/components/features/layout/TableSkeleton';
+import { AdicionarLancamentoAction } from '@/components/features/lancamentos/AdicionarLancamentoAction';
+import { LancamentosMobileView } from '@/components/features/lancamentos/LancamentosMobileView';
+import { ListagemSkeleton } from '@/components/features/lancamentos/TxListSkeleton';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { fromDespesa } from '@/lib/lancamentos/item';
 import { Spinner } from '@/components/ui/spinner';
 import {
   Select,
@@ -35,7 +43,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { EditarDespesaDialog } from './EditarDespesaDialog';
-import { formatCurrency } from '@/lib/utils';
+import { formatCompetencia, formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS: Record<StatusDespesa, string> = {
@@ -58,13 +66,26 @@ interface DespesaTableProps {
 }
 
 export function DespesaTable({ competencia, filters }: DespesaTableProps) {
-  const { data, isLoading } = useDespesas(competencia, filters);
+  // O status é filtrado no cliente: a mesma lista (sem status) alimenta os
+  // contadores dos chips e as duas apresentações.
+  const { status: statusFiltro, ...filtrosServidor } = filters ?? {};
+  const { data, isLoading, isError, refetch, isRefetching, dataUpdatedAt } = useDespesas(
+    competencia,
+    Object.keys(filtrosServidor).length > 0 ? filtrosServidor : undefined
+  );
   const atualizarStatus = useAtualizarStatusDespesa();
   const remover = useRemoverDespesa();
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const despesas = useMemo(
+    () =>
+      (data?.despesas ?? []).filter((d) => !statusFiltro || d.status === statusFiltro),
+    [data, statusFiltro]
+  );
   const { sortedData, sortConfig, requestSort } = useSortableData<Despesa>(
-    data?.despesas ?? [],
+    despesas,
     { key: 'valor', direction: 'desc' }
   );
+  const itensMobile = useMemo(() => (data?.despesas ?? []).map(fromDespesa), [data]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [statusLoadingId, setStatusLoadingId] = useState<string | null>(null);
 
@@ -86,17 +107,47 @@ export function DespesaTable({ competencia, filters }: DespesaTableProps) {
     }
   };
 
-  if (isLoading) return <PageLoader />;
+  if (isDesktop === undefined) return <ListagemSkeleton />;
 
-  if (!data?.despesas.length) {
+  if (isDesktop === false) {
     return (
-      <p className="py-8 text-center text-muted-foreground">
-        Nenhuma despesa encontrada para {competencia}.
-      </p>
+      <LancamentosMobileView
+        tipo="despesa"
+        competencia={competencia}
+        items={itensMobile}
+        statusAtivo={statusFiltro}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => refetch()}
+        isRetrying={isRefetching}
+        dataUpdatedAt={dataUpdatedAt}
+        onMarcarPaga={(item) => atualizarStatus.mutate({ id: item.id, status: 'PAGA' })}
+      />
+    );
+  }
+
+  if (isLoading) return <TableSkeleton />;
+
+  if (isError && !data) return <ErrorState onRetry={() => refetch()} isRetrying={isRefetching} />;
+
+  if (!despesas.length) {
+    return (
+      <EmptyState
+        title={`Nenhuma despesa em ${formatCompetencia(competencia)}`}
+        message={
+          statusFiltro || filtrosServidor.categoria
+            ? 'Nenhuma despesa corresponde aos filtros ativos.'
+            : 'Registre a primeira despesa deste mês.'
+        }
+      >
+        <AdicionarLancamentoAction tipo="despesa" competencia={competencia} />
+      </EmptyState>
     );
   }
 
   return (
+    <>
+    <DadosSalvosLabel updatedAt={dataUpdatedAt} isError={isError} />
     <Table>
       <TableHeader>
         <TableRow>
@@ -192,5 +243,6 @@ export function DespesaTable({ competencia, filters }: DespesaTableProps) {
         ))}
       </TableBody>
     </Table>
+    </>
   );
 }

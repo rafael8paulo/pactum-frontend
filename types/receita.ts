@@ -10,6 +10,8 @@ export interface Receita {
   valor: number;
   competencia: string;
   categoria: CategoriaReceita;
+  /** ISO yyyy-MM-dd. Ainda não fornecido pela API. */
+  data?: string | null;
 }
 
 export interface CadastrarReceitaRequest {

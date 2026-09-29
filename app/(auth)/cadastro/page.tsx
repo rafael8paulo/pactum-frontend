@@ -11,7 +11,7 @@ export default function CadastroPage() {
 
   useEffect(() => {
     if (!isLoading && usuario !== null) {
-      router.replace('/resumo');
+      router.replace('/inicio');
     }
   }, [isLoading, usuario, router]);
 

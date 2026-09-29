@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { getPostLoginPath } from '@/lib/redirect';
 import { LoginForm } from '@/components/features/auth/LoginForm';
 
 export default function LoginPage() {
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && usuario !== null) {
-      router.replace('/resumo');
+      router.replace(getPostLoginPath());
     }
   }, [isLoading, usuario, router]);
 

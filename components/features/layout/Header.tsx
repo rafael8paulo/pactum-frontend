@@ -1,6 +1,6 @@
 'use client';
 
-import { Moon, Sun, Menu, LogOut } from 'lucide-react';
+import { Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,11 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { MonthPicker } from './MonthPicker';
 import { useAuth } from '@/providers/auth-provider';
 
-interface HeaderProps {
-  onMenuClick?: () => void;
-}
-
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header() {
   const { theme, setTheme } = useTheme();
   const { usuario, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -29,15 +25,6 @@ export function Header({ onMenuClick }: HeaderProps) {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4">
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onMenuClick}
-          aria-label="Abrir menu"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
         <Suspense>
           <MonthPicker />
         </Suspense>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useReceitas, useRemoverReceita } from '@/hooks/useReceitas';
 import { useSortableData } from '@/hooks/useSortableData';
 import type { Receita } from '@/types/receita';
@@ -13,7 +13,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SortableTableHead } from '@/components/features/shared/SortableTableHead';
-import { PageLoader } from '@/components/ui/page-loader';
+import { DadosSalvosLabel } from '@/components/features/layout/DadosSalvosLabel';
+import { EmptyState } from '@/components/features/layout/EmptyState';
+import { ErrorState } from '@/components/features/layout/ErrorState';
+import { TableSkeleton } from '@/components/features/layout/TableSkeleton';
+import { AdicionarLancamentoAction } from '@/components/features/lancamentos/AdicionarLancamentoAction';
+import { LancamentosMobileView } from '@/components/features/lancamentos/LancamentosMobileView';
+import { ListagemSkeleton } from '@/components/features/lancamentos/TxListSkeleton';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { fromReceita } from '@/lib/lancamentos/item';
 import { Spinner } from '@/components/ui/spinner';
 import {
   AlertDialog,
@@ -28,7 +36,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { EditarReceitaDialog } from './EditarReceitaDialog';
-import { formatCurrency } from '@/lib/utils';
+import { formatCompetencia, formatCurrency } from '@/lib/utils';
 
 const CATEGORIA_LABELS: Record<string, string> = {
   SALARIO: 'Salário',
@@ -42,8 +50,10 @@ interface ReceitaTableProps {
 }
 
 export function ReceitaTable({ competencia }: ReceitaTableProps) {
-  const { data, isLoading } = useReceitas(competencia);
+  const { data, isLoading, isError, refetch, isRefetching, dataUpdatedAt } = useReceitas(competencia);
   const remover = useRemoverReceita();
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const itensMobile = useMemo(() => (data?.receitas ?? []).map(fromReceita), [data]);
   const { sortedData, sortConfig, requestSort } = useSortableData<Receita>(data?.receitas ?? []);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -56,17 +66,41 @@ export function ReceitaTable({ competencia }: ReceitaTableProps) {
     }
   };
 
-  if (isLoading) return <PageLoader />;
+  if (isDesktop === undefined) return <ListagemSkeleton />;
+
+  if (isDesktop === false) {
+    return (
+      <LancamentosMobileView
+        tipo="receita"
+        competencia={competencia}
+        items={itensMobile}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => refetch()}
+        isRetrying={isRefetching}
+        dataUpdatedAt={dataUpdatedAt}
+      />
+    );
+  }
+
+  if (isLoading) return <TableSkeleton />;
+
+  if (isError && !data) return <ErrorState onRetry={() => refetch()} isRetrying={isRefetching} />;
 
   if (!data?.receitas.length) {
     return (
-      <p className="py-8 text-center text-muted-foreground">
-        Nenhuma receita encontrada para {competencia}.
-      </p>
+      <EmptyState
+        title={`Nenhuma receita em ${formatCompetencia(competencia)}`}
+        message="Registre a primeira receita deste mês."
+      >
+        <AdicionarLancamentoAction tipo="receita" competencia={competencia} />
+      </EmptyState>
     );
   }
 
   return (
+    <>
+    <DadosSalvosLabel updatedAt={dataUpdatedAt} isError={isError} />
     <Table>
       <TableHeader>
         <TableRow>
@@ -140,5 +174,6 @@ export function ReceitaTable({ competencia }: ReceitaTableProps) {
         ))}
       </TableBody>
     </Table>
+    </>
   );
 }

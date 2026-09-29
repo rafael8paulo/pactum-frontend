@@ -1,24 +1,15 @@
-import { NovaReceitaDialog } from '@/components/features/receitas/NovaReceitaDialog';
-import { ReceitaTable } from '@/components/features/receitas/ReceitaTable';
-import { getCurrentCompetencia } from '@/lib/utils';
+import { redirect, RedirectType } from 'next/navigation';
 
-interface ReceitasPageProps {
-  searchParams: Promise<{
-    competencia?: string;
-  }>;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function ReceitasPage({ searchParams }: ReceitasPageProps) {
+export default async function ReceitasRedirect({ searchParams }: PageProps) {
   const params = await searchParams;
-  const competencia = params.competencia ?? getCurrentCompetencia();
-
-  return (
-    <div className="space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Receitas</h1>
-        <NovaReceitaDialog competenciaAtual={competencia} />
-      </div>
-      <ReceitaTable competencia={competencia} />
-    </div>
-  );
+  const qs = new URLSearchParams({ tipo: 'receita' });
+  for (const key of ['competencia']) {
+    const value = params[key];
+    if (typeof value === 'string') qs.set(key, value);
+  }
+  redirect(`/lancamentos?${qs.toString()}`, RedirectType.replace);
 }

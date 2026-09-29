@@ -17,6 +17,8 @@ export interface Despesa {
   competencia: string;
   categoria: CategoriaDespesa;
   contaRecorrenteId?: string | null;
+  /** ISO yyyy-MM-dd. Ainda não fornecido pela API — habilita agrupamento por dia quando existir. */
+  data?: string | null;
 }
 
 export interface CadastrarDespesaRequest {

@@ -1,22 +1,14 @@
-import { ResumoUnificadoCards } from '@/components/features/resumo-unificado/ResumoUnificadoCards';
-import { ResumoUnificadoPaineis } from '@/components/features/resumo-unificado/ResumoUnificadoPaineis';
-import { getCurrentCompetencia } from '@/lib/utils';
+import { redirect, RedirectType } from 'next/navigation';
 
-interface ResumoUnificadoPageProps {
-  searchParams: Promise<{
-    competencia?: string;
-  }>;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function ResumoUnificadoPage({ searchParams }: ResumoUnificadoPageProps) {
+export default async function ResumoUnificadoRedirect({ searchParams }: PageProps) {
   const params = await searchParams;
-  const competencia = params.competencia ?? getCurrentCompetencia();
-
-  return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">Resumo Unificado</h1>
-      <ResumoUnificadoCards competencia={competencia} />
-      <ResumoUnificadoPaineis competencia={competencia} />
-    </div>
-  );
+  const qs = new URLSearchParams();
+  const competencia = params.competencia;
+  if (typeof competencia === 'string') qs.set('competencia', competencia);
+  const query = qs.toString();
+  redirect(`/inicio${query ? `?${query}` : ''}`, RedirectType.replace);
 }

@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        numeric: ['var(--font-jakarta)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -44,6 +48,23 @@ const config: Config = {
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
+        },
+        brand: {
+          DEFAULT: 'hsl(var(--brand))',
+          foreground: 'hsl(var(--brand-foreground))',
+          tint: 'hsl(var(--brand-tint))',
+        },
+        pos: {
+          DEFAULT: 'hsl(var(--pos))',
+          tint: 'hsl(var(--pos-tint))',
+        },
+        neg: {
+          DEFAULT: 'hsl(var(--neg))',
+          tint: 'hsl(var(--neg-tint))',
+        },
+        warn: {
+          DEFAULT: 'hsl(var(--warn))',
+          tint: 'hsl(var(--warn-tint))',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

@@ -12,7 +12,6 @@ import { useFormasPagamento } from '@/hooks/useFormasPagamento';
 import type {
   ContaRecorrente,
   ContaRecorrenteFilters,
-  FrequenciaCobranca,
   StatusContaRecorrente,
 } from '@/types/conta-recorrente';
 import {
@@ -41,26 +40,18 @@ import { EditarContaRecorrenteDialog } from './EditarContaRecorrenteDialog';
 import { HistoricoValorDialog } from './HistoricoValorDialog';
 import { TableSkeleton } from '@/components/features/layout/TableSkeleton';
 import { EmptyState } from '@/components/features/layout/EmptyState';
+import { ErrorState } from '@/components/features/layout/ErrorState';
+import { TxRowsSkeleton } from '@/components/features/lancamentos/TxListSkeleton';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { ContaRecorrenteMobileList } from './ContaRecorrenteMobileList';
+import { NovaContaRecorrenteDialog } from './NovaContaRecorrenteDialog';
 import { formatCurrency, cn, getCurrentCompetencia } from '@/lib/utils';
 
-const STATUS_COLORS: Record<StatusContaRecorrente, string> = {
-  ATIVA: 'text-green-700 dark:text-green-400',
-  PAUSADA: 'text-yellow-700 dark:text-yellow-400',
-  ENCERRADA: 'text-muted-foreground',
-};
-
-const STATUS_LABELS: Record<StatusContaRecorrente, string> = {
-  ATIVA: 'Ativa',
-  PAUSADA: 'Pausada',
-  ENCERRADA: 'Encerrada',
-};
-
-const FREQUENCIA_LABELS: Record<FrequenciaCobranca, string> = {
-  SEMANAL: 'Semanal',
-  MENSAL: 'Mensal',
-  TRIMESTRAL: 'Trimestral',
-  ANUAL: 'Anual',
-};
+import {
+  FREQUENCIA_LABELS,
+  STATUS_CONTA_LABELS as STATUS_LABELS,
+  STATUS_CONTA_TEXT_CLASS as STATUS_COLORS,
+} from './constants';
 
 function formatData(data: string): string {
   const [year, month, day] = data.split('-');
@@ -109,7 +100,8 @@ interface ContaRecorrenteTableProps {
 }
 
 export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
-  const { data, isLoading } = useContasRecorrentes(filters);
+  const { data, isLoading, isError, refetch, isRefetching } = useContasRecorrentes(filters);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const { data: formasPagamento } = useFormasPagamento();
   const atualizarStatus = useAtualizarStatusContaRecorrente();
   const remover = useRemoverContaRecorrente();
@@ -161,10 +153,46 @@ export function ContaRecorrenteTable({ filters }: ContaRecorrenteTableProps) {
     }
   };
 
-  if (isLoading) return <TableSkeleton />;
+  if (isLoading || isDesktop === undefined) {
+    return (
+      <>
+        <div className="md:hidden">
+          <TxRowsSkeleton />
+        </div>
+        <div className="hidden md:block">
+          <TableSkeleton />
+        </div>
+      </>
+    );
+  }
+
+  if (isError && !data) return <ErrorState onRetry={() => refetch()} isRetrying={isRefetching} />;
 
   if (!data?.contasRecorrentes.length) {
-    return <EmptyState message="Nenhuma conta recorrente cadastrada. Cadastre a primeira para começar a gerar lançamentos automaticamente." />;
+    return (
+      <EmptyState
+        title={filters?.status ? 'Nenhuma conta neste status' : 'Nenhuma conta recorrente'}
+        message="Cadastre a primeira para começar a gerar lançamentos automaticamente."
+      >
+        <NovaContaRecorrenteDialog />
+      </EmptyState>
+    );
+  }
+
+  if (isDesktop === false) {
+    return (
+      <ContaRecorrenteMobileList
+        contas={data.contasRecorrentes}
+        nomeFormaPagamento={(id) => {
+          const nome = id ? nomeFormaPagamento(id) : '—';
+          return nome === '—' ? null : nome;
+        }}
+        onStatusChange={handleStatusChange}
+        onRemove={handleDelete}
+        statusLoadingId={statusLoadingId}
+        removingId={loadingId}
+      />
+    );
   }
 
   return (

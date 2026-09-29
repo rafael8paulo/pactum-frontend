@@ -1,44 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense } from 'react';
 import { Sidebar } from '@/components/features/layout/Sidebar';
 import { Header } from '@/components/features/layout/Header';
+import { MobileHeader } from '@/components/features/layout/MobileHeader';
+import { OfflineBanner } from '@/components/features/layout/OfflineBanner';
+import { MobileTabBar } from '@/components/features/layout/MobileTabBar';
 import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  QuickAddProvider,
+  useQuickAdd,
+} from '@/components/features/lancamentos/QuickAddProvider';
+import { QuickAddSheet } from '@/components/features/lancamentos/QuickAddSheet';
 import { ProtectedRoute } from '@/components/ui/protected-route';
+
+function DashboardShell({ children }: { children: React.ReactNode }) {
+  const { openQuickAdd } = useQuickAdd();
+
+  return (
+    <div className="flex h-dvh overflow-hidden">
+      {/* Desktop: Sidebar + Header */}
+      <div className="hidden md:flex md:shrink-0">
+        <Sidebar />
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <OfflineBanner />
+        <div className="hidden md:block">
+          <Header />
+        </div>
+        <div className="md:hidden">
+          <MobileHeader />
+        </div>
+        <main className="flex-1 overflow-y-auto bg-background pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile: tab bar fixa */}
+      <div className="md:hidden">
+        <MobileTabBar onCreate={openQuickAdd} />
+      </div>
+      <QuickAddSheet />
+    </div>
+  );
+}
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden">
-        {/* Sidebar desktop */}
-        <div className="hidden md:flex md:shrink-0">
-          <Sidebar />
-        </div>
-
-        {/* Sidebar mobile via Sheet */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="w-56 p-0">
-            <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
-            <Sidebar />
-          </SheetContent>
-        </Sheet>
-
-        {/* Main area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <Header onMenuClick={() => setMobileOpen(true)} />
-          <main className="flex-1 overflow-y-auto bg-background">{children}</main>
-        </div>
-      </div>
+      <Suspense>
+        <QuickAddProvider>
+          <DashboardShell>{children}</DashboardShell>
+        </QuickAddProvider>
+      </Suspense>
     </ProtectedRoute>
   );
 }

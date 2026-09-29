@@ -1,23 +1,14 @@
-import { ResumoCards } from '@/components/features/resumo/ResumoCards';
-import { EvolucaoAnualChart } from '@/components/features/resumo/EvolucaoAnualChart';
-import { getCurrentCompetencia } from '@/lib/utils';
+import { redirect, RedirectType } from 'next/navigation';
 
-interface ResumoPageProps {
-  searchParams: Promise<{
-    competencia?: string;
-  }>;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function ResumoPage({ searchParams }: ResumoPageProps) {
+export default async function ResumoRedirect({ searchParams }: PageProps) {
   const params = await searchParams;
-  const competencia = params.competencia ?? getCurrentCompetencia();
-  const ano = Number(competencia.split('-')[0]);
-
-  return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">Resumo</h1>
-      <ResumoCards competencia={competencia} />
-      <EvolucaoAnualChart ano={ano} />
-    </div>
-  );
+  const qs = new URLSearchParams();
+  const competencia = params.competencia;
+  if (typeof competencia === 'string') qs.set('competencia', competencia);
+  const query = qs.toString();
+  redirect(`/inicio${query ? `?${query}` : ''}`, RedirectType.replace);
 }

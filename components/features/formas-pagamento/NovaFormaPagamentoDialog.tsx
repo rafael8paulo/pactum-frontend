@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { ResponsiveDialog } from '@/components/features/shared/ResponsiveDialog';
 import { Button } from '@/components/ui/button';
 import { FormaPagamentoForm } from './FormaPagamentoForm';
 import type { FormaPagamentoFormValues } from './FormaPagamentoForm';
@@ -24,16 +18,15 @@ export function NovaFormaPagamentoDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Nova Forma de Pagamento"
+      trigger={
         <Button>Nova Forma de Pagamento</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Nova Forma de Pagamento</DialogTitle>
-        </DialogHeader>
-        <FormaPagamentoForm onSubmit={handleSubmit} isPending={cadastrar.isPending} />
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <FormaPagamentoForm onSubmit={handleSubmit} isPending={cadastrar.isPending} />
+    </ResponsiveDialog>
   );
 }

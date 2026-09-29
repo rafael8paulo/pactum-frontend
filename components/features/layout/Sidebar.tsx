@@ -4,23 +4,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BarChart3,
-  CreditCard,
   Landmark,
-  LayoutGrid,
+  Receipt,
   Repeat,
-  TrendingUp,
   Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/resumo', label: 'Resumo', icon: BarChart3 },
-  { href: '/resumo-unificado', label: 'Resumo Unificado', icon: LayoutGrid },
-  { href: '/despesas', label: 'Despesas', icon: CreditCard },
-  { href: '/receitas', label: 'Receitas', icon: TrendingUp },
-  { href: '/patrimonio', label: 'Patrimônio', icon: Wallet },
-  { href: '/contas-recorrentes', label: 'Contas Recorrentes', icon: Repeat },
-  { href: '/formas-pagamento', label: 'Formas de Pagamento', icon: Landmark },
+  { href: '/inicio', label: 'Início', icon: BarChart3 },
+  { href: '/lancamentos', label: 'Lançamentos', icon: Receipt },
+  { href: '/recorrentes', label: 'Recorrentes', icon: Repeat },
+  { href: '/mais/patrimonio', label: 'Patrimônio', icon: Wallet },
+  { href: '/mais/formas-pagamento', label: 'Formas de Pagamento', icon: Landmark },
 ];
 
 export function Sidebar() {

@@ -9,9 +9,10 @@ export function useResumoMensal(competencia: string) {
   });
 }
 
-export function useHistoricoAnual(ano: number) {
+export function useHistoricoAnual(ano: number, options?: { enabled?: boolean }) {
   return useQuery<HistoricoAnualResponse>({
     queryKey: ['resumo', 'anual', ano],
     queryFn: () => resumoApi.anual(ano),
+    enabled: options?.enabled ?? true,
   });
 }

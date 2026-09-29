@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useHistoricoAnual } from '@/hooks/useResumo';
-import { PageLoader } from '@/components/ui/page-loader';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 
 const MES_LABELS: Record<string, string> = {
@@ -65,7 +65,7 @@ interface EvolucaoAnualChartProps {
 export function EvolucaoAnualChart({ ano }: EvolucaoAnualChartProps) {
   const { data, isLoading } = useHistoricoAnual(ano);
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading) return <Skeleton className="h-[300px] w-full" />;
 
   if (!data?.meses.length) {
     return (

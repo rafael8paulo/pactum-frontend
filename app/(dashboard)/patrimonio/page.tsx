@@ -1,26 +1,14 @@
-import { NovoPatrimonioDialog } from '@/components/features/patrimonio/NovoPatrimonioDialog';
-import { PatrimonioTotal } from '@/components/features/patrimonio/PatrimonioTotal';
-import { PatrimonioGrid } from '@/components/features/patrimonio/PatrimonioGrid';
-import { getCurrentCompetencia } from '@/lib/utils';
+import { redirect, RedirectType } from 'next/navigation';
 
-interface PatrimonioPageProps {
-  searchParams: Promise<{
-    competencia?: string;
-  }>;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function PatrimonioPage({ searchParams }: PatrimonioPageProps) {
+export default async function PatrimonioRedirect({ searchParams }: PageProps) {
   const params = await searchParams;
-  const competencia = params.competencia ?? getCurrentCompetencia();
-
-  return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Patrimônio</h1>
-        <NovoPatrimonioDialog competenciaAtual={competencia} />
-      </div>
-      <PatrimonioTotal competencia={competencia} />
-      <PatrimonioGrid competencia={competencia} />
-    </div>
-  );
+  const qs = new URLSearchParams();
+  const competencia = params.competencia;
+  if (typeof competencia === 'string') qs.set('competencia', competencia);
+  const query = qs.toString();
+  redirect(`/mais/patrimonio${query ? `?${query}` : ''}`, RedirectType.replace);
 }

@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { ResponsiveDialog } from '@/components/features/shared/ResponsiveDialog';
 import { Button } from '@/components/ui/button';
 import { ContaRecorrenteForm } from './ContaRecorrenteForm';
 import type { ContaRecorrenteFormValues } from './ContaRecorrenteForm';
@@ -24,19 +18,18 @@ export function NovaContaRecorrenteDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Nova Conta Recorrente"
+      trigger={
         <Button>Nova Conta Recorrente</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Nova Conta Recorrente</DialogTitle>
-        </DialogHeader>
-        <ContaRecorrenteForm
-          onSubmit={handleSubmit}
-          isPending={cadastrar.isPending}
-        />
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <ContaRecorrenteForm
+      onSubmit={handleSubmit}
+      isPending={cadastrar.isPending}
+      />
+    </ResponsiveDialog>
   );
 }

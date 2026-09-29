@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { ResponsiveDialog } from '@/components/features/shared/ResponsiveDialog';
 import { Button } from '@/components/ui/button';
 import { PatrimonioForm } from './PatrimonioForm';
 import type { PatrimonioFormValues } from './PatrimonioForm';
@@ -28,20 +22,19 @@ export function NovoPatrimonioDialog({ competenciaAtual }: NovoPatrimonioDialogP
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Novo Item de Patrimônio"
+      trigger={
         <Button>Novo Item</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Novo Item de Patrimônio</DialogTitle>
-        </DialogHeader>
-        <PatrimonioForm
-          defaultValues={{ competencia: competenciaAtual }}
-          onSubmit={handleSubmit}
-          isPending={cadastrar.isPending}
-        />
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <PatrimonioForm
+        defaultValues={{ competencia: competenciaAtual }}
+        onSubmit={handleSubmit}
+        isPending={cadastrar.isPending}
+      />
+    </ResponsiveDialog>
   );
 }

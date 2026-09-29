@@ -1,14 +1,14 @@
-import { NovaFormaPagamentoDialog } from '@/components/features/formas-pagamento/NovaFormaPagamentoDialog';
-import { FormaPagamentoTable } from '@/components/features/formas-pagamento/FormaPagamentoTable';
+import { redirect, RedirectType } from 'next/navigation';
 
-export default function FormasPagamentoPage() {
-  return (
-    <div className="space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Formas de Pagamento</h1>
-        <NovaFormaPagamentoDialog />
-      </div>
-      <FormaPagamentoTable />
-    </div>
-  );
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function FormasPagamentoRedirect({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const qs = new URLSearchParams();
+  const competencia = params.competencia;
+  if (typeof competencia === 'string') qs.set('competencia', competencia);
+  const query = qs.toString();
+  redirect(`/mais/formas-pagamento${query ? `?${query}` : ''}`, RedirectType.replace);
 }

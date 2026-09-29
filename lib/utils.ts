@@ -32,3 +32,9 @@ export function addMonths(competencia: string, delta: number): string {
   const newMonth = String(date.getMonth() + 1).padStart(2, '0');
   return `${newYear}-${newMonth}`;
 }
+
+/** Percentual da receita já comprometido por despesas (0–100). */
+export function percentualComprometido(totalReceitas: number, totalDespesas: number): number {
+  if (totalReceitas > 0) return Math.min(100, Math.round((totalDespesas / totalReceitas) * 100));
+  return totalDespesas > 0 ? 100 : 0;
+}

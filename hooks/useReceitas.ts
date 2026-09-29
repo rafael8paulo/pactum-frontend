@@ -15,10 +15,25 @@ export function useCadastrarReceita() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CadastrarReceitaRequest) => receitaApi.cadastrar(data),
-    onSuccess: () => {
+    onSuccess: (criada) => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
-      toast.success('Receita cadastrada com sucesso.');
+      toast.success('Receita cadastrada com sucesso.', {
+        duration: 6000,
+        action: {
+          label: 'Desfazer',
+          onClick: () => {
+            receitaApi
+              .remover(criada.id)
+              .then(() => toast.success('Cadastro desfeito.'))
+              .catch((error) => toast.error(getErrorMessage(error)))
+              .finally(() => {
+                queryClient.invalidateQueries({ queryKey: ['receitas'] });
+                queryClient.invalidateQueries({ queryKey: ['resumo'] });
+              });
+          },
+        },
+      });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error));

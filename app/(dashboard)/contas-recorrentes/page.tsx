@@ -1,51 +1,16 @@
-import { Suspense } from 'react';
-import { NovaContaRecorrenteDialog } from '@/components/features/contas-recorrentes/NovaContaRecorrenteDialog';
-import { ContaRecorrenteFilters } from '@/components/features/contas-recorrentes/ContaRecorrenteFilters';
-import { GerarLancamentosButton } from '@/components/features/contas-recorrentes/GerarLancamentosButton';
-import { ContaRecorrenteTable } from '@/components/features/contas-recorrentes/ContaRecorrenteTable';
-import { ResumoAssinaturasCards } from '@/components/features/contas-recorrentes/ResumoAssinaturasCards';
-import { AssinaturasPorFormaPagamentoList } from '@/components/features/contas-recorrentes/AssinaturasPorFormaPagamentoList';
-import { ProximasCobrancasBanner } from '@/components/features/contas-recorrentes/ProximasCobrancasBanner';
-import type {
-  ContaRecorrenteFilters as FiltersType,
-  StatusContaRecorrente,
-} from '@/types/conta-recorrente';
+import { redirect, RedirectType } from 'next/navigation';
 
-interface ContasRecorrentesPageProps {
-  searchParams: Promise<{
-    competencia?: string;
-    status?: string;
-  }>;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function ContasRecorrentesPage({
-  searchParams,
-}: ContasRecorrentesPageProps) {
+export default async function ContasRecorrentesRedirect({ searchParams }: PageProps) {
   const params = await searchParams;
-
-  const filters: FiltersType = {};
-  if (params.status) filters.status = params.status as StatusContaRecorrente;
-
-  return (
-    <div className="space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Contas Recorrentes</h1>
-        <NovaContaRecorrenteDialog />
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <ResumoAssinaturasCards />
-        <AssinaturasPorFormaPagamentoList />
-        <ProximasCobrancasBanner />
-      </div>
-      <div className="flex items-center justify-between">
-        <Suspense>
-          <ContaRecorrenteFilters />
-        </Suspense>
-        <Suspense>
-          <GerarLancamentosButton />
-        </Suspense>
-      </div>
-      <ContaRecorrenteTable filters={Object.keys(filters).length > 0 ? filters : undefined} />
-    </div>
-  );
+  const qs = new URLSearchParams();
+  for (const key of ['competencia', 'status']) {
+    const value = params[key];
+    if (typeof value === 'string') qs.set(key, value);
+  }
+  const query = qs.toString();
+  redirect(`/recorrentes${query ? `?${query}` : ''}`, RedirectType.replace);
 }

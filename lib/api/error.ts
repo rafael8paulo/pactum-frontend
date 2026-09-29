@@ -5,6 +5,9 @@ export function getErrorMessage(
   fallback = 'Ocorreu um erro. Tente novamente.'
 ): string {
   if (error instanceof AxiosError) {
+    // sem `response` = a requisição nem chegou à API (offline, DNS, timeout)
+    if (!error.response) return 'Sem conexão. A alteração não foi enviada.';
+
     const apiMessage = error.response?.data?.message;
     if (typeof apiMessage === 'string' && apiMessage.trim()) {
       return apiMessage;

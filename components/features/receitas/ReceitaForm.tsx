@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import type { CategoriaReceita } from '@/types/receita';
 
-const receitaSchema = z.object({
+export const receitaSchema = z.object({
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   valor: z.number().positive('Valor deve ser maior que zero'),
   categoria: z.enum([
@@ -49,9 +49,11 @@ interface ReceitaFormProps {
   defaultValues?: Partial<ReceitaFormValues>;
   onSubmit: (values: ReceitaFormValues) => void;
   isPending: boolean;
+  /** Mobile: a competência vem do contexto e não é digitada. */
+  hideCompetencia?: boolean;
 }
 
-export function ReceitaForm({ defaultValues, onSubmit, isPending }: ReceitaFormProps) {
+export function ReceitaForm({ defaultValues, onSubmit, isPending, hideCompetencia = false }: ReceitaFormProps) {
   const form = useForm<ReceitaFormValues>({
     resolver: zodResolver(receitaSchema),
     defaultValues: {
@@ -125,19 +127,21 @@ export function ReceitaForm({ defaultValues, onSubmit, isPending }: ReceitaFormP
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="competencia"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Competência</FormLabel>
-              <FormControl>
-                <Input placeholder="AAAA-MM (ex: 2025-07)" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!hideCompetencia && (
+          <FormField
+            control={form.control}
+            name="competencia"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Competência</FormLabel>
+                <FormControl>
+                  <Input placeholder="AAAA-MM (ex: 2025-07)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? <Spinner size="sm" /> : 'Salvar'}

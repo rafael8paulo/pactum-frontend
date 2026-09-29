@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import type { StatusDespesa, CategoriaDespesa } from '@/types/despesa';
 
-const despesaSchema = z.object({
+export const despesaSchema = z.object({
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   valor: z.number().positive('Valor deve ser maior que zero'),
   categoria: z.enum([
@@ -62,9 +62,11 @@ interface DespesaFormProps {
   defaultValues?: Partial<DespesaFormValues>;
   onSubmit: (values: DespesaFormValues) => void;
   isPending: boolean;
+  /** Mobile: a competência vem do contexto e não é digitada. */
+  hideCompetencia?: boolean;
 }
 
-export function DespesaForm({ defaultValues, onSubmit, isPending }: DespesaFormProps) {
+export function DespesaForm({ defaultValues, onSubmit, isPending, hideCompetencia = false }: DespesaFormProps) {
   const form = useForm<DespesaFormValues>({
     resolver: zodResolver(despesaSchema),
     defaultValues: {
@@ -164,19 +166,21 @@ export function DespesaForm({ defaultValues, onSubmit, isPending }: DespesaFormP
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="competencia"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Competência</FormLabel>
-              <FormControl>
-                <Input placeholder="AAAA-MM (ex: 2025-07)" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!hideCompetencia && (
+          <FormField
+            control={form.control}
+            name="competencia"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Competência</FormLabel>
+                <FormControl>
+                  <Input placeholder="AAAA-MM (ex: 2025-07)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? <Spinner size="sm" /> : 'Salvar'}

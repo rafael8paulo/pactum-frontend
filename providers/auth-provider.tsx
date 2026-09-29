@@ -3,6 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
+import { clearFinancialCache } from '@/lib/query-client';
+import { getPostLoginPath } from '@/lib/redirect';
 import type { Usuario, LoginRequest, CadastroRequest } from '@/types/auth';
 
 interface AuthContextType {
@@ -30,18 +32,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function login(data: LoginRequest) {
     const u = await authApi.login(data);
+    clearFinancialCache(); // nunca herda cache de outra sessão
     setUsuario(u);
-    router.push('/resumo');
+    router.push(getPostLoginPath());
   }
 
   async function cadastro(data: CadastroRequest) {
     const u = await authApi.cadastro(data);
+    clearFinancialCache();
     setUsuario(u);
-    router.push('/resumo');
+    router.push('/inicio');
   }
 
   async function logout() {
     await authApi.logout();
+    // dados financeiros não podem sobreviver à sessão no dispositivo
+    clearFinancialCache();
     setUsuario(null);
     router.push('/login');
   }

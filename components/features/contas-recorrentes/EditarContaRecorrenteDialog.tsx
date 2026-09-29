@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { ResponsiveDialog } from '@/components/features/shared/ResponsiveDialog';
 import { Button } from '@/components/ui/button';
 import { ContaRecorrenteForm } from './ContaRecorrenteForm';
 import type { ContaRecorrenteFormValues } from './ContaRecorrenteForm';
@@ -33,32 +27,31 @@ export function EditarContaRecorrenteDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Editar Conta Recorrente"
+      trigger={
         <Button variant="ghost" size="sm">
           Editar
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Editar Conta Recorrente</DialogTitle>
-        </DialogHeader>
-        <ContaRecorrenteForm
-          defaultValues={{
-            descricao: contaRecorrente.descricao,
-            valorPadrao: contaRecorrente.valorPadrao,
-            categoria: contaRecorrente.categoria,
-            diaVencimento: contaRecorrente.diaVencimento ?? undefined,
-            competenciaInicio: contaRecorrente.competenciaInicio,
-            competenciaFim: contaRecorrente.competenciaFim ?? undefined,
-            frequencia: contaRecorrente.frequencia,
-            dataBaseCobranca: contaRecorrente.dataBaseCobranca,
-            formaPagamentoId: contaRecorrente.formaPagamentoId ?? undefined,
-          }}
-          onSubmit={handleSubmit}
-          isPending={atualizar.isPending}
-        />
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <ContaRecorrenteForm
+        defaultValues={{
+          descricao: contaRecorrente.descricao,
+          valorPadrao: contaRecorrente.valorPadrao,
+          categoria: contaRecorrente.categoria,
+          diaVencimento: contaRecorrente.diaVencimento ?? undefined,
+          competenciaInicio: contaRecorrente.competenciaInicio,
+          competenciaFim: contaRecorrente.competenciaFim ?? undefined,
+          frequencia: contaRecorrente.frequencia,
+          dataBaseCobranca: contaRecorrente.dataBaseCobranca,
+          formaPagamentoId: contaRecorrente.formaPagamentoId ?? undefined,
+        }}
+        onSubmit={handleSubmit}
+        isPending={atualizar.isPending}
+      />
+    </ResponsiveDialog>
   );
 }
