@@ -26,6 +26,7 @@ export function useCadastrarDespesa() {
     onSuccess: (criada) => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Despesa cadastrada com sucesso.', {
         duration: DURACAO_TOAST_DESFAZER,
         action: {
@@ -39,6 +40,7 @@ export function useCadastrarDespesa() {
               .finally(() => {
                 queryClient.invalidateQueries({ queryKey: ['despesas'] });
                 queryClient.invalidateQueries({ queryKey: ['resumo'] });
+                queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
               });
           },
         },
@@ -58,6 +60,7 @@ export function useAtualizarDespesa() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Despesa atualizada com sucesso.');
     },
     onError: (error) => {
@@ -125,6 +128,7 @@ export function useAtualizarStatusDespesa() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
     },
   });
 
@@ -138,6 +142,7 @@ export function useRemoverDespesa() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Despesa removida.');
     },
     onError: (error) => {

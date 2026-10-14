@@ -7,6 +7,7 @@ import {
   Landmark,
   Receipt,
   Repeat,
+  Target,
   Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/lancamentos', label: 'Lançamentos', icon: Receipt },
   { href: '/recorrentes', label: 'Recorrentes', icon: Repeat },
   { href: '/mais/patrimonio', label: 'Patrimônio', icon: Wallet },
+  { href: '/mais/metas-economia', label: 'Metas de economia', icon: Target },
   { href: '/mais/formas-pagamento', label: 'Formas de Pagamento', icon: Landmark },
 ];
 

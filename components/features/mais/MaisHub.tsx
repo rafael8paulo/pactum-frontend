@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { ChevronRight, Landmark, LogOut, BarChart3 } from 'lucide-react';
+import { ChevronRight, Landmark, LogOut, BarChart3, Target } from 'lucide-react';
 import { PiggyBank } from '@/lib/icons';
 import {
   AlertDialog,
@@ -100,6 +100,11 @@ export function MaisHub() {
         <Link href={`/mais/patrimonio${qs}`} className={ROW}>
           <PiggyBank className="h-5 w-5 text-muted-foreground" aria-hidden />
           <span className="flex-1">Patrimônio</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden />
+        </Link>
+        <Link href={`/mais/metas-economia${qs}`} className={ROW}>
+          <Target className="h-5 w-5 text-muted-foreground" aria-hidden />
+          <span className="flex-1">Metas de economia</span>
           <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden />
         </Link>
         <Link href="/mais/formas-pagamento" className={ROW}>

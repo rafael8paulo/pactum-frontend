@@ -18,6 +18,7 @@ export function useCadastrarReceita() {
     onSuccess: (criada) => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Receita cadastrada com sucesso.', {
         duration: 6000,
         action: {
@@ -30,6 +31,7 @@ export function useCadastrarReceita() {
               .finally(() => {
                 queryClient.invalidateQueries({ queryKey: ['receitas'] });
                 queryClient.invalidateQueries({ queryKey: ['resumo'] });
+                queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
               });
           },
         },
@@ -49,6 +51,7 @@ export function useAtualizarReceita() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Receita atualizada com sucesso.');
     },
     onError: (error) => {
@@ -64,6 +67,7 @@ export function useRemoverReceita() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receitas'] });
       queryClient.invalidateQueries({ queryKey: ['resumo'] });
+      queryClient.invalidateQueries({ queryKey: ['metas-economia'] });
       toast.success('Receita removida.');
     },
     onError: (error) => {

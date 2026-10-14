@@ -2,6 +2,8 @@ import { ResumoCards } from '@/components/features/resumo/ResumoCards';
 import { SaldoHero } from '@/components/features/resumo/SaldoHero';
 import { EvolucaoResponsiva } from '@/components/features/resumo/EvolucaoResponsiva';
 import { PendentesAviso } from '@/components/features/resumo/PendentesAviso';
+import { MetaCardErrorBoundary } from '@/components/features/metas-economia/MetaCardErrorBoundary';
+import { MetaEconomiaCard } from '@/components/features/metas-economia/MetaEconomiaCard';
 import { SetupChecklist } from '@/components/features/onboarding/SetupChecklist';
 import { getCurrentCompetencia } from '@/lib/utils';
 
@@ -28,6 +30,10 @@ export default async function InicioPage({ searchParams }: InicioPageProps) {
       <div className="hidden md:block">
         <ResumoCards competencia={competencia} />
       </div>
+
+      <MetaCardErrorBoundary>
+        <MetaEconomiaCard competencia={competencia} />
+      </MetaCardErrorBoundary>
 
       <div className="md:hidden">
         <PendentesAviso competencia={competencia} />
