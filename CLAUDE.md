@@ -131,6 +131,11 @@ export default function DespesaTable(...) { ... }
 - Loading states com componentes `Skeleton` do shadcn.
 - Estado vazio com componente `EmptyState` padronizado.
 
+### Testes
+
+- **Toda nova funcionalidade ou alteração de comportamento deve vir acompanhada de testes E2E com Playwright** que cubram o fluxo do usuário afetado. Não basta o teste unitário de `lib/`.
+- Os testes ficam em `e2e/` (`<fluxo>.spec.ts`; specs que só valem no mobile usam `<fluxo>.mobile.spec.ts`), com Page Objects em `e2e/pages/`. Config em `playwright.config.ts`; execução com `npm run test:e2e` — ver a seção 8.1 para subir a stack local antes.
+
 ---
 
 ## 5. Variáveis de Ambiente
@@ -194,9 +199,37 @@ O Dokploy é o plano de controle de deploy na VPS: puxa a imagem nova do GHCR, r
 npm run dev           # Inicia em desenvolvimento
 npm run build         # Build de produção
 npm run lint          # ESLint
+npm test              # Testes unitários (node --test em lib/**)
+npm run test:e2e      # Testes e2e (Playwright) — exige a stack local no ar
+npm run test:e2e:ui   # Idem, no modo interativo do Playwright
 
 npx shadcn@latest add [componente]   # Adicionar componente shadcn
 ```
+
+---
+
+## 8.1 Testes e2e (Playwright)
+
+Os testes e2e ficam em `e2e/` (config em `playwright.config.ts`) e rodam contra a stack completa — frontend, API e Postgres — do `docker-compose.local.yml` na raiz do monorepo. O Playwright **não** sobe a stack: suba-a antes.
+
+```bash
+# a partir de pactum-frontend/
+docker compose -f ../docker-compose.local.yml up -d --build --wait   # front :3001, API :8081, Postgres :5433
+npx playwright install chromium                                       # uma vez por máquina
+npm run test:e2e
+npx playwright show-report                                            # relatório HTML da última execução
+docker compose -f ../docker-compose.local.yml down -v                 # derruba e descarta o banco
+```
+
+- `E2E_BASE_URL` (padrão `http://localhost:3001`) e `E2E_API_URL` (padrão `http://localhost:8081`, usada só para criar dados de apoio direto na API) apontam para outro ambiente. A imagem do frontend embute `NEXT_PUBLIC_API_URL` no build; só use outra URL se esse ambiente foi buildado apontando para a API correspondente.
+- Projetos: `setup` (cadastra um usuário único e salva `e2e/.auth/user.json`), `auth` (sem sessão), `authenticated` (desktop, com a sessão salva) e `mobile` (Pixel 7, para `*.mobile.spec.ts`).
+- Cada execução cria o próprio usuário (e-mail único), então não há seed nem limpeza. Specs que precisam de totais exatos criam um usuário próprio (`support/session.ts`).
+- O agrupamento de lançamentos (`lib/lancamentos/group`) só existe na visão mobile; no desktop `/lancamentos` é uma tabela.
+- `/despesas`, `/receitas` e `/resumo` apenas redirecionam para `/lancamentos?tipo=…` e `/inicio`; os testes usam as rotas finais.
+- O cadastro **não abre sessão** na API hoje (`POST /api/v1/auth/cadastro` não emite `SESSION`), então os helpers fazem login após cadastrar.
+- Seletores: `getByRole`/`getByLabel` primeiro; `data-testid` só quando não houver alternativa. Sem `waitForTimeout`.
+- Falhas retêm trace em `test-results/` (`npx playwright show-trace <trace.zip>`). `playwright-report/`, `test-results/` e `e2e/.auth/` ficam fora do Git.
+- **CI:** ainda não roda e2e. Um `e2e.yml` em PRs é follow-up e depende de resolver o checkout cruzado dos repos `pactum-api` e `pactum-frontend` e de onde versionar o compose local.
 
 ---
 
