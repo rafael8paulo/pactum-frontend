@@ -2,6 +2,7 @@
 
 import { useResumoMensal } from '@/hooks/useResumo';
 import { DadosSalvosLabel } from '@/components/features/layout/DadosSalvosLabel';
+import { SaldoAposMeta } from '@/components/features/metas-economia/SaldoAposMeta';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn, formatCurrency, percentualComprometido } from '@/lib/utils';
 
@@ -52,6 +53,7 @@ export function SaldoHero({ competencia }: SaldoHeroProps) {
       >
         {formatCurrency(data.saldo)}
       </p>
+      <SaldoAposMeta competencia={competencia} className="mt-1" />
 
       <div
         className="mt-4 flex h-2 overflow-hidden rounded-full bg-muted"
