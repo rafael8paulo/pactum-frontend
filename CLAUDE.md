@@ -210,16 +210,47 @@ npx shadcn@latest add [componente]   # Adicionar componente shadcn
 
 ## 8.1 Testes e2e (Playwright)
 
-Os testes e2e ficam em `e2e/` (config em `playwright.config.ts`) e rodam contra a stack completa — frontend, API e Postgres — do `docker-compose.local.yml` na raiz do monorepo. O Playwright **não** sobe a stack: suba-a antes.
+Os testes e2e ficam em `e2e/` (config em `playwright.config.ts`) e rodam contra a stack completa — frontend, API e Postgres — do `docker-compose.local.yml` na **raiz do monorepo** (`../docker-compose.local.yml`). O Playwright **não** sobe a stack: suba-a antes.
+
+### Como rodar (caminho padrão: executor em container)
+
+Não depende de libs do Chromium nem do Playwright instalados no host. Rode a partir de `pactum-frontend/`:
 
 ```bash
-# a partir de pactum-frontend/
+export E2E_HOST=host.docker.internal        # no WSL, também: export WSLENV=E2E_HOST
+C="docker compose -f ../docker-compose.local.yml --profile e2e"   # no WSL sem `docker` no PATH: docker.exe
+
+$C up -d --build --wait postgres api frontend      # ~2 min no primeiro build
+$C run --rm --build e2e                            # todos os testes
+$C run --rm --build e2e npx playwright test e2e/metas-economia.spec.ts   # um arquivo
+$C down -v                                         # sempre derrubar ao final (descarta o banco)
+```
+
+Regras que evitam erro:
+- **`E2E_HOST` igual no `up` e no `run`.** `NEXT_PUBLIC_API_URL` e o CORS da API são definidos no build/start a partir dele; dentro do container `localhost` é o próprio container, e API e frontend precisam estar no **mesmo host** para o cookie de sessão valer. Trocou o valor → `up --build` de novo.
+- **WSL:** `docker` costuma não estar no PATH; use `docker.exe` (Docker Desktop). Variáveis só chegam ao `docker.exe` via `WSLENV`. Sempre passe o compose com caminho Windows se necessário (`$(wslpath -w ../docker-compose.local.yml)`).
+- **Não rode `npm run test:e2e` direto no host sem antes validar o Chromium:** `npx playwright install chromium` baixa o navegador mas as libs de sistema (`libnspr4` etc.) exigem `sudo npx playwright install-deps`. O executor em container evita isso.
+- A imagem `Dockerfile.e2e` deve usar a mesma versão de `@playwright/test` do `package-lock.json` (hoje 1.64.1).
+- Relatório e traces: `playwright-report/` e `test-results/` (montados do container).
+
+### Alternativa: executor no host
+
+Só se as libs do Chromium estiverem instaladas. Stack com `localhost` (sem `E2E_HOST`):
+
+```bash
 docker compose -f ../docker-compose.local.yml up -d --build --wait   # front :3001, API :8081, Postgres :5433
 npx playwright install chromium                                       # uma vez por máquina
 npm run test:e2e
-npx playwright show-report                                            # relatório HTML da última execução
-docker compose -f ../docker-compose.local.yml down -v                 # derruba e descarta o banco
+npx playwright show-report
+docker compose -f ../docker-compose.local.yml down -v
 ```
+
+### Armadilhas ao escrever specs
+
+- **Desktop e mobile coexistem no DOM:** em `/inicio` o `SaldoHero` (mobile) e o `ResumoCards` (desktop) são renderizados juntos e um é escondido por CSS. `getByText` pode achar 2 elementos (strict mode) — use `.locator('visible=true')` (ver `visivel()` em `e2e/metas-economia.spec.ts`).
+- **O mobile não tem os botões "Nova Despesa/Nova Receita"** (lançamento por sheet de adição rápida). Em `*.mobile.spec.ts` crie dados de apoio pela API (`e2e/support/api.ts`: `criarDespesaViaApi`, `criarReceitaViaApi`, usando `page.request` quando o spec tem usuário próprio).
+- Specs que dependem de totais exatos usam usuário próprio e vazio: `test.use({ storageState: { cookies: [], origins: [] } })` + `cadastrarELogar(page)`.
+- Valores em BRL saem com espaço não separável (`R$ 400,00`): use regex com `\s` (`/-R\$\s*400,00/`).
 
 - `E2E_BASE_URL` (padrão `http://localhost:3001`) e `E2E_API_URL` (padrão `http://localhost:8081`, usada só para criar dados de apoio direto na API) apontam para outro ambiente. A imagem do frontend embute `NEXT_PUBLIC_API_URL` no build; só use outra URL se esse ambiente foi buildado apontando para a API correspondente.
 - Projetos: `setup` (cadastra um usuário único e salva `e2e/.auth/user.json`), `auth` (sem sessão), `authenticated` (desktop, com a sessão salva) e `mobile` (Pixel 7, para `*.mobile.spec.ts`).

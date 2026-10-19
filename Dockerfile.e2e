@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1
+# Executor dos testes e2e (Playwright) em container — não depende de libs do host.
+# A versão da imagem deve acompanhar a de @playwright/test no package-lock.
+FROM mcr.microsoft.com/playwright:v1.64.1-noble
+
+ENV NEXT_TELEMETRY_DISABLED=1 CI=1
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+  npm ci --prefer-offline --no-audit --no-fund
+
+COPY playwright.config.ts tsconfig.json ./
+COPY e2e ./e2e
+
+CMD ["npx", "playwright", "test"]
