@@ -3,6 +3,7 @@
 import { useResumoMensal } from '@/hooks/useResumo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DadosSalvosLabel } from '@/components/features/layout/DadosSalvosLabel';
+import { SaldoAposMeta } from '@/components/features/metas-economia/SaldoAposMeta';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, cn, percentualComprometido } from '@/lib/utils';
 
@@ -80,6 +81,7 @@ export function ResumoCards({ competencia }: ResumoCardsProps) {
           >
             {formatCurrency(data.saldo)}
           </p>
+          <SaldoAposMeta competencia={competencia} className="mt-1" />
           <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted">
             <div className="h-full bg-neg" style={{ width: `${pct}%` }} />
           </div>

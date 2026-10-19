@@ -12,3 +12,12 @@ yarn-error.log*
 .idea
 openspec
 BACKLOG-WEB.md
+e2e
+playwright.config.ts
+playwright-report
+test-results
+Dockerfile
+.dockerignore
+*.md
+coverage
+.next/cache

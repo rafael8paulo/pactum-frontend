@@ -19,3 +19,15 @@ export async function criarDespesaViaApi(
     throw new Error(`Falha ao criar despesa via API: ${resposta.status()} ${await resposta.text()}`);
   }
 }
+
+export async function criarReceitaViaApi(
+  request: APIRequestContext,
+  dados: { descricao: string; valor: number }
+) {
+  const resposta = await request.post(`${API_URL}/api/v1/receitas`, {
+    data: { categoria: 'SALARIO', competencia: competenciaAtual(), ...dados },
+  });
+  if (!resposta.ok()) {
+    throw new Error(`Falha ao criar receita via API: ${resposta.status()} ${await resposta.text()}`);
+  }
+}
